@@ -56,7 +56,14 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- H2 Database (Dev & Fallback for instant local execution without MySQL server) -->
+        <!-- PostgreSQL Driver for Production / Render Deployment -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- H2 Database (Dev & Fallback for instant local execution without external DB) -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>

@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: smart-attendance-backend
+    env: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: SPRING_PROFILES_ACTIVE
+        value: postgres
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://smart-attendence-steel.vercel.app,http://localhost:5173
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: smart-attendance-db
+          property: connectionString
+
+databases:
+  - name: smart-attendance-db
+    databaseName: smart_attendance
+    user: smart_admin
+    plan: free
+    region: oregon

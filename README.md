@@ -222,5 +222,65 @@ mvn test
 
 ---
 
-## 8. License & Academic Disclaimer
+## 8. Cloud Deployment Guide (Render + PostgreSQL + Vercel)
+
+### Architecture
+- **Frontend**: Deployed on [Vercel](https://smart-attendence-steel.vercel.app)
+- **Backend API**: Deployed as a Web Service on [Render](https://render.com)
+- **Database**: Managed PostgreSQL on Render
+
+### Step 1: Push latest changes to GitHub
+Ensure all changes from this repository are committed and pushed:
+```bash
+git add .
+git commit -m "Configure backend for Render PostgreSQL deployment and Vercel CORS"
+git push origin main
+```
+
+### Step 2: Create PostgreSQL Database on Render
+1. Log in to your [Render Dashboard](https://dashboard.render.com/).
+2. Click **New +** -> **PostgreSQL**.
+3. Fill in:
+   - **Name**: `smart-attendance-db`
+   - **Database**: `smart_attendance`
+   - **User**: `smart_admin`
+   - **Region**: Choose closest to you (e.g., *Oregon* or *Singapore*).
+   - **Plan**: Free
+4. Click **Create Database**.
+5. Once created, note the **Internal Database URL** (for Render web service) or **External Database URL**.
+
+### Step 3: Deploy Backend Web Service on Render
+#### Option A: Docker Deployment (Recommended)
+1. In Render Dashboard, click **New +** -> **Web Service**.
+2. Connect your GitHub repository: `Smart--Attendence`.
+3. Configure settings:
+   - **Name**: `smart-attendance-backend`
+   - **Region**: Same as your PostgreSQL database (e.g. *Oregon*).
+   - **Branch**: `main`
+   - **Root Directory**: `backend`
+   - **Environment**: `Docker`
+   - **Health Check Path**: `/api/health`
+4. In **Environment Variables**, add:
+   | Key | Value | Notes |
+   | --- | --- | --- |
+   | `DATABASE_URL` | Paste your Render Postgres **Internal Database URL** (or link database directly) | Automatically converted to JDBC format by backend |
+   | `SPRING_PROFILES_ACTIVE` | `postgres` | Activates PostgreSQL mode |
+   | `CORS_ALLOWED_ORIGINS` | `https://smart-attendence-steel.vercel.app,http://localhost:5173` | Allows requests from your Vercel frontend |
+   | `PORT` | `8080` | Container port |
+   | `JWT_SECRET` | Any random 64-character hex string | E.g. `4c8a9f6e3d2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f` |
+5. Click **Deploy Web Service**.
+6. Render builds the Docker image and launches the Spring Boot backend. The database schema and demo accounts are created automatically upon first startup!
+
+### Step 4: Connect Vercel Frontend to Render Backend
+1. Go to your [Vercel Dashboard](https://vercel.com/) -> Select your `smart-attendence-steel` project.
+2. Go to **Settings** -> **Environment Variables**.
+3. Add the following variable:
+   - **Key**: `VITE_API_BASE_URL`
+   - **Value**: `https://<YOUR-RENDER-BACKEND-SUBDOMAIN>.onrender.com/api` (e.g. `https://smart-attendance-backend.onrender.com/api`)
+4. Go to **Deployments** -> Click **Redeploy** on your latest deployment (or push a commit).
+5. Open `https://smart-attendence-steel.vercel.app` and log in with the demo accounts!
+
+---
+
+## 9. License & Academic Disclaimer
 Built for college major project demonstrations and educational software evaluations. All student and faculty data in the seed script are fictional.
